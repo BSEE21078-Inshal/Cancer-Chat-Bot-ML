@@ -2,7 +2,6 @@
 # Streamlit Web Version using OpenRouter API and DeepSeek
 
 import streamlit as st
-import fitz  # PyMuPDF
 import json
 import requests
 import tempfile
@@ -10,6 +9,7 @@ import os
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
+from PyPDF2 import PdfReader
 
 st.set_page_config(page_title="Breast Cancer Chatbot", layout="wide")
 st.title("🩺 Breast Cancer Chatbot (Hybrid Knowledge)")
@@ -30,9 +30,9 @@ if uploaded_file:
         tmp_file.write(uploaded_file.read())
         tmp_path = tmp_file.name
 
-    with fitz.open(tmp_path) as doc:
-        for page in doc:
-            pdf_text += page.get_text()
+    reader = PdfReader(tmp_path)
+    for page in reader.pages:
+        pdf_text += page.extract_text() or ""
 
     # Split into chunks
     def split_into_chunks(text, chunk_size=500, overlap=100):
